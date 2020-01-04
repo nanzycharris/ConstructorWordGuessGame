@@ -35,26 +35,33 @@ var correctLetters = [];
 // variable that sets the number of guesses to 10
 var guessesLeft = 10;
 
+// logic for the game 
 function theLogic() {
-    if (requireNewWord) {
-        var randomIndex = Math.floor(Math.random() * Simpsons.length);
+    // Generate new word for Word constructor if true
+    if (requireNew) {
+        // Get a random word
+        var randomIndex = Math.floor(Math.random() * UnitedStates.length);
         var randomWord = Simpsons[randomIndex];
 
+        // Passes selected word through the Word constructor
         computerWord = new Word(randomWord);
 
-        requireNewWord = false;
+        requireNew = false;
     }
+    // Test if a letter guessed is correct
     var wordComplete = [];
+    computerWord.objArray.forEach(completeCheck);
     if (wordComplete.includes(false)) {
         inquirer.prompt([
             {
                 type: "input",
                 message: "Choose any letter from A to Z",
-                name: "userinput",
+                name: "userinput"
             }
         ]).then(function (input) {
-            if (!letterArray.includes(input.userinput) || input.userinput.length > 1) {
-                console.log("Please try a different letter \n");
+            if (!letterArray.includes(input.userinput) || input.userinput.length > 1
+            ) {
+                console.log("\nPlease try a different letter\n");
                 theLogic();
             } else {
                 if (
@@ -63,27 +70,30 @@ function theLogic() {
                     console.log("\nAlready guessed or no letter was typed\n");
                     theLogic();
                 } else {
+                    // Check if user's guess is correct
                     var wordCheckArray = [];
                     computerWord.userGuess(input.userinput);
-                    computerWord.obArray.forEach(wordCheck);
+                    computerWord.objArray.forEach(wordCheck);
                     if (wordCheckArray.join("") === wordComplete.join("")) {
                         console.log("\nIncorrect\n");
-
                         incorrectLetters.push(input.userinput);
                         guessesLeft--;
                     } else {
-                        console.log("\nCorrect\n");
+                        console.log("\nCorrect!\n");
                         correctLetters.push(input.userinput);
                     }
-                    computerWord();
+                    computerWord.log();
 
+                    // Display number of guesses left and guessed letters 
                     console.log("Guesses left: " + guessesLeft + "\n");
                     console.log("Letters guessed: " + incorrectLetters.join(" ") + "\n");
-
+                    // Guesses left
                     if (guessesLeft > 0) {
+                        // Call function
                         theLogic();
                     } else {
-                        console.log("You have lost\n");
+                        console.log("Sorry, you lost!\n");
+                        restartGame();
                     }
                     function wordCheck(key) {
                         wordCheckArray.push(key.guessed);
@@ -92,14 +102,16 @@ function theLogic() {
             }
         });
     } else {
-        console.log("You got it!\n")
+        console.log("You won! Yay!\n");
+        restartGame();
     }
+
     function completeCheck(key) {
         wordComplete.push(key.guessed);
     }
 }
 
-// function to allow user to restart the game
+// Function to restart the game
 function restartGame() {
     inquirer.prompt([
         {
@@ -121,6 +133,5 @@ function restartGame() {
     });
 }
 
-// call the function for game logic
-
+// Call function for game logic
 theLogic();
